@@ -1,0 +1,63 @@
+# azure_ml_job.yml
+# ================
+# Azure ML command job for training the churn model.
+# Deploy with: az ml job create --file cloud/azure/azure_ml_job.yml
+#
+# Prerequisites:
+#   az login
+#   az account set --subscription <your-subscription-id>
+#   az ml workspace show --name <your-workspace>
+
+$schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
+
+type: command
+
+experiment_name: genai-customer-intelligence
+display_name: churn-model-training-v1
+description: "Deep learning churn prediction with PyTorch — GenAI Customer Intelligence Platform"
+
+# Compute cluster (create in Azure ML Studio or via CLI)
+compute: azureml:cpu-cluster-standard-ds3
+
+# Environment
+environment:
+  image: mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04
+  conda_file: ./conda_env.yml
+
+# Command to execute
+command: >-
+  python src/pipeline_runner.py
+  --mode train
+  --output-dir ${{outputs.model_output}}
+  --data-dir ${{inputs.training_data}}
+
+# Inputs (Azure Blob Storage)
+inputs:
+  training_data:
+    type: uri_folder
+    path: azureml://datastores/workspaceblobstore/paths/genai-customer-intelligence/data/raw/
+
+# Outputs
+outputs:
+  model_output:
+    type: uri_folder
+    path: azureml://datastores/workspaceblobstore/paths/genai-customer-intelligence/models/
+
+# Resource configuration
+resources:
+  instance_count: 1
+  instance_type: Standard_DS3_v2
+
+# MLflow tracking
+services:
+  Studio:
+    type: studio
+  Tracking:
+    type: mlflow
+
+# Tags
+tags:
+  project: genai-customer-intelligence
+  model: churn-net-pytorch
+  framework: pytorch
+  owner: swathi_ks
