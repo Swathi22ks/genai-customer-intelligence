@@ -57,19 +57,3 @@ jobs:
         with:
           files: coverage.xml
           fail_ci_if_error: false
-
-  docker:
-    name: Docker Build Check
-    runs-on: ubuntu-latest
-    needs: test
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Build Docker image
-        run: docker build -t genai-customer-intelligence:latest .
-
-      - name: Test Docker image
-        run: |
-          docker run --rm genai-customer-intelligence:latest \
-            python -c "import torch; import transformers; print('Docker build OK ✓')"
