@@ -31,6 +31,7 @@ transformers==4.36.2
 datasets==2.16.1
 tokenizers==0.15.0
 spacy==3.7.2
+en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1.tar.gz
 
 # Gen AI / LLM
 openai==1.6.1
